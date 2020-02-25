@@ -10,9 +10,14 @@ class CtFEnv(gym.Env):
   metadata = {'render.modes': ['human']}
 
   def __init__(self):
+    self.done = False
     self.map = generateMap(100,40)
     # There shall be two teams to begin with
     self.nbTeamMembers = 5
+    # This is what the agents will be allowed to see each turn
+    self.state = np.zeros(self.nbTeamMembers*2,4)
+    self.rewards = np.zeros(self.nbTeamMembers*2)
+
     # There might come a time where teams are generated in a locked space
     # There will be a small probability of this happening.
     # It might later be dealt with by allowing interactions with environment
@@ -40,13 +45,68 @@ class CtFEnv(gym.Env):
       self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
 
   def step(self, action):
-    ...
+    # Maybe later add some more checkups for data structure
+    if len(agents) !== len(action):
+      print("Invalid action : number of agents has been set to " + len(agents)+ " but you only gave an action of size " + len(action))
+      return #//!! Not done !!\\
+    else:
+      self.state = []
+      self.rewards = []
+
+      for agentNb in range(len(agents)):
+        self.agents[agentNb].move(action[agentNb][0],self.map)
+        if action[agentNb][1] == 1:
+          self.agents[agentNb].attackself.(map,self.agents,self.flags)
+        
+        self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
+        # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
+        rew = self.agents[agentNb].reward
+        self.rewards.append(rew)
+        # for now rewards are only assigned on victory, no heuristics
+        if rew !== 0:
+          self.done = True
+
+      
+
+    # returns, in order, the state, the reward, and wether the game is over
+    return [self.state, self.rewards, self.done, self.add]
+
+    # In agents there should be a table per agent, and inside that movement, then other actions
+
+    
+
   def reset(self):
-    ...
+    # Maybe there is a difference between __init__ and this. If so I have not spotted it
+    self.done = False
+    self.map = generateMap(100,40)
+    self.nbTeamMembers = 5
+    self.state = np.zeros(self.nbTeamMembers*2,4)
+    self.rewards = np.zeros(self.nbTeamMembers*2)
+    self.agents = []
+    self.flags = []
+
+    self.flags.append(Flag(1,1,1))
+    self.map[1][1] = False
+
+    for i in range(self.nbTeamMembers):
+      self.agents.append(Agent((i+1)*2,2,1))
+      self.map[2][(i+1)*2] = True
+
+    
+    self.flags.append(Flag(len(self.map[0])-2,len(self.map)-2,2))
+    self.map[len(self.map)-2][len(self.map[0])-2] = False
+    for i in range(self.nbTeamMembers):
+      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2))
+      self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
+
+      
   def render(self, mode='human'):
     ...
-  def close(self):
-    ...
+
+
+  # No idea what this one does or is supposed to do
+  # def close(self):
+  #   ...
 
   def mapGenerationStep(oldMap, deathLimit, birthLimit):
     # print(toStringMap(oldMap))
