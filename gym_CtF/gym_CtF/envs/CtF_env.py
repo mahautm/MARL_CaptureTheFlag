@@ -11,7 +11,7 @@ class CtFEnv(gym.Env):
 
   def __init__(self):
     self.done = False
-    self.map = generateMap(100,40)
+    self.map = self.generateMap(100,40)
     # There shall be two teams to begin with
     self.nbTeamMembers = 5
     # This is what the agents will be allowed to see each turn
@@ -53,17 +53,17 @@ class CtFEnv(gym.Env):
       self.state = []
       self.rewards = []
 
-      for agentNb in range(len(agents)):
+      for agentNb in range(len(self.agents)):
         self.agents[agentNb].move(action[agentNb][0],self.map)
         if action[agentNb][1] == 1:
-          self.agents[agentNb].attackself.(map,self.agents,self.flags)
+          self.agents[agentNb].attackself(map,self.agents,self.flags)
 
         self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
         # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
         rew = self.agents[agentNb].reward
         self.rewards.append(rew)
         # for now rewards are only assigned on victory, no heuristics
-        if rew !== 0:
+        if rew != 0:
           self.done = True
 
     # returns, in order, the state, the reward, and wether the game is over
@@ -76,7 +76,7 @@ class CtFEnv(gym.Env):
   def reset(self):
     # Maybe there is a difference between __init__ and this. If so I have not spotted it
     self.done = False
-    self.map = generateMap(100,40)
+    self.map = self.generateMap(100,40)
     self.nbTeamMembers = 5
     self.state = np.zeros(self.nbTeamMembers*2,4)
     self.rewards = np.zeros(self.nbTeamMembers*2)
@@ -106,22 +106,7 @@ class CtFEnv(gym.Env):
   # def close(self):
   #   ...
 
-  def mapGenerationStep(oldMap, deathLimit, birthLimit):
-    # print(toStringMap(oldMap))
-    newMap = np.zeros((len(oldMap),len(oldMap[0])))
-    # for line in range(len(oldMap)):
-    #   newMap[line] = [(False) for _ in range(len(oldMap[0]))]
-    for y in range(len(oldMap)):
-      for x in range(len(oldMap[0])):
-        liveNeighbours = mapCountAliveNeighbours(oldMap,x,y)
-        if oldMap[y][x]:
-          newMap[y][x] = (liveNeighbours >= deathLimit)
-        else:
-          newMap[y][x] = (liveNeighbours >= birthLimit)
-    return newMap
-        
-
-  def mapCountAliveNeighbours(map,x,y):
+  def mapCountAliveNeighbours(self,map,x,y):
     count = 0
     for i in range(3):
       for j in range(3):
@@ -135,9 +120,23 @@ class CtFEnv(gym.Env):
               count += 1
     return count
 
+  def mapGenerationStep(self, oldMap, deathLimit, birthLimit):
+    # print(toStringMap(oldMap))
+    newMap = np.zeros((len(oldMap),len(oldMap[0])))
+    # for line in range(len(oldMap)):
+    #   newMap[line] = [(False) for _ in range(len(oldMap[0]))]
+    for y in range(len(oldMap)):
+      for x in range(len(oldMap[0])):
+        liveNeighbours = self.mapCountAliveNeighbours(oldMap,x,y)
+        if oldMap[y][x]:
+          newMap[y][x] = (liveNeighbours >= deathLimit)
+        else:
+          newMap[y][x] = (liveNeighbours >= birthLimit)
+    return newMap
 
 
-  def generateMap(width,height):
+
+  def generateMap(self, width,height):
     # Game of life like algorythm is used to build map
     chanceToStartAlive = 0.65
     deathLimit = 3
@@ -151,10 +150,10 @@ class CtFEnv(gym.Env):
       cellmap[line] = [(random.random()<chanceToStartAlive) for _ in range(width)]
 
     for i in range (numberOfSteps):
-      cellmap = mapGenerationStep(cellmap,deathLimit,birthLimit)
+      cellmap = self.mapGenerationStep(cellmap,deathLimit,birthLimit)
     return cellmap 
 
-  def toStringMap(map):
+  def toStringMap(self,map):
     visualMap = ''
     for y in range(len(map)):
       for x in range(len(map[0])):
