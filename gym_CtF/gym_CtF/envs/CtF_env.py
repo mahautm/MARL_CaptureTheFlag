@@ -46,7 +46,7 @@ class CtFEnv(gym.Env):
 
   def step(self, action) :
     # Maybe later add some more checkups for data structure
-    if len(self.agents) !== len(action):
+    if len(self.agents) != len(action):
       print("Invalid action : number of agents has been set to " + len(self.agents) + " but you only gave an action of size " + len(action))
       return [self.state, self.rewards, self.done, self.add]
     else:
