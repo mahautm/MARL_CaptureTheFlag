@@ -44,11 +44,11 @@ class CtFEnv(gym.Env):
       self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2))
       self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
 
-  def step(self, action):
+  def step(self, action) :
     # Maybe later add some more checkups for data structure
-    if len(agents) !== len(action):
-      print("Invalid action : number of agents has been set to " + len(agents)+ " but you only gave an action of size " + len(action))
-      return #//!! Not done !!\\
+    if len(self.agents) !== len(action):
+      print("Invalid action : number of agents has been set to " + len(self.agents) + " but you only gave an action of size " + len(action))
+      return [self.state, self.rewards, self.done, self.add]
     else:
       self.state = []
       self.rewards = []
@@ -57,7 +57,7 @@ class CtFEnv(gym.Env):
         self.agents[agentNb].move(action[agentNb][0],self.map)
         if action[agentNb][1] == 1:
           self.agents[agentNb].attackself.(map,self.agents,self.flags)
-        
+
         self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
         # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
         rew = self.agents[agentNb].reward
@@ -65,8 +65,6 @@ class CtFEnv(gym.Env):
         # for now rewards are only assigned on victory, no heuristics
         if rew !== 0:
           self.done = True
-
-      
 
     # returns, in order, the state, the reward, and wether the game is over
     return [self.state, self.rewards, self.done, self.add]

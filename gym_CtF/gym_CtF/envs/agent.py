@@ -1,3 +1,5 @@
+import numpy as np
+
 class Agent:
 
   def __init__(self, x, y, team):
@@ -6,7 +8,7 @@ class Agent:
     self.team = team
     self.holdingFlag = False
     self.active = True
-    self.reward = 0;
+    self.reward = 0
     self.visionRange = 7 # //!! This information must go in the JSON file which will hold all modifiable parametres
 
   def move(self,direction, map):
@@ -38,7 +40,7 @@ class Agent:
     for flag in flags:
       if flag.team != self.team and abs(self.posX - flag.posX) <= 1 and abs(self.posY - flag.posY) <= 1:
         print("Flag has been captured, victory to team " + self.team)
-        self.reward = 1000;
+        self.reward = 1000
 
   def sight(self,map,flags,agents):
     size = (self.visionRange,self.visionRange)
