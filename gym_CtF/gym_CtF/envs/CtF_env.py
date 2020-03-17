@@ -1,7 +1,9 @@
 import gym
 import random
+
 import gym_CtF.envs.flag
 import gym_CtF.envs.agent
+
 import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
