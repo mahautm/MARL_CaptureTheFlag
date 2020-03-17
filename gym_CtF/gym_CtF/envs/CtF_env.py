@@ -1,7 +1,7 @@
 import gym
 import random
-import Flag
-import Agent
+import flag
+import agent
 import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
