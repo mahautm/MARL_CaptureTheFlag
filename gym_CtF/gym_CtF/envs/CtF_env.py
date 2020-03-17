@@ -1,8 +1,8 @@
 import gym
 import random
 
-import gym_CtF.envs.flag
-import gym_CtF.envs.agent
+from gym_CtF.envs.flag import Flag
+from gym_CtF.envs.agent import Agent
 
 import numpy as np
 from gym import error, spaces, utils
@@ -17,7 +17,7 @@ class CtFEnv(gym.Env):
     # There shall be two teams to begin with
     self.nbTeamMembers = 5
     # This is what the agents will be allowed to see each turn
-    self.state = np.zeros(self.nbTeamMembers*2,4)
+    self.state = np.zeros((self.nbTeamMembers*2,4))
     self.rewards = np.zeros(self.nbTeamMembers*2)
 
     # There might come a time where teams are generated in a locked space
