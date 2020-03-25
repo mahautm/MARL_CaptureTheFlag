@@ -9,7 +9,7 @@ from gym import error, spaces, utils
 from gym.utils import seeding
 
 class CtFEnv(gym.Env):
-      """
+"""
     Description:
     A random map is generated with obstacles. 
     Two teams of agents are generated on opposite sides of the map.
@@ -17,33 +17,31 @@ class CtFEnv(gym.Env):
     First team to capture a flag wins.
 
     Observation: 
-        Type: Box(4)
-        Num	Observation                 Min         Max
-        0	Cart Position             -4.8            4.8
-        1	Cart Velocity             -Inf            Inf
-        2	Pole Angle                 -24 deg        24 deg
-        3	Pole Velocity At Tip      -Inf            Inf
+      Type: Box(x*x*self.nbTeamMembers*4)
+      each agent has 4 x*x sized maps for :
+      Num	Action
+        0 shows all surrounding positions, 0 being unblocked position and 1 indicating a blocked postion
+        1 shows flags in surrounding positions, 0 meaning no flag, and 1 meaning flag
+        2 shows friendly agents in surrounding positions, 0 meaning no friend, 1 meaning a friend is on the position
+        3 shows ennemy agents in surrounding positions, 0 meaning no ennemy, 1 meaning a ennemy is on the position
         
     Actions:
-        Type: Discrete(2)
-        Num	Action
-        0	Push cart to the left
-        1	Push cart to the right
+      Type: MultiBinary(2 * self.nbTeamMembers * 5) 
+      For each team member, in each team:
+      Num	Action
+        0	  move left
+        1	  move right
+        2	  move up
+        3	  move down
+        4   attack
         
     Reward:
-        Reward is 1 for every step taken, including the termination step
+      WIP
     Starting State:
-        All observations are assigned a uniform random value in [-0.05..0.05]
+      WIP
     Episode Termination:
-        Pole Angle is more than 12 degrees
-        Cart Position is more than 2.4 (center of the cart reaches the edge of the display)
-        Episode length is greater than 200
-        Solved Requirements
-        Considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
-    """
-  
-  
-  
+      WIP
+"""
   metadata = {'render.modes': ['human']}
 
   def __init__(self):
@@ -51,9 +49,13 @@ class CtFEnv(gym.Env):
     self.map = self.generateMap(100,40)
     # There shall be two teams to begin with
     self.nbTeamMembers = 5
+    self.observation_size = 7
     # This is what the agents will be allowed to see each turn --> The observation space
-    # self.state = spaces.Box(low=0, high=2.0, shape=(self.nbTeamMembers * 2, 4), dtype=np.int32)
-    self.action_space = spaces.Box(low=0, high=2.0, shape=(self.nbTeamMembers * 2, 4), dtype=np.int32)
+    #Documentation hardly exists, 
+    # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
+    self.observation_space = spaces.Box(low=0, high=1, shape=(self.observation_size, self.observation_size,self.nbTeamMembers = 5,4), dtype=np.uint8)
+
+    self.action_space = spaces.MultiBinary(2 * self.nbTeamMembers*5)
     self.rewards = np.zeros(self.nbTeamMembers*2)
 
     # There might come a time where teams are generated in a locked space
@@ -70,7 +72,7 @@ class CtFEnv(gym.Env):
     # First team members are assigned starting position in top left corner
     for i in range(self.nbTeamMembers):
       # positioned so as to be spaced by one from each other
-      self.agents.append(Agent((i+1)*2,2,1))
+      self.agents.append(Agent((i+1)*2,2,1,self.observation_size))
       # We add a Wall : You wannot walk on an agent
       self.map[2][(i+1)*2] = True
 
@@ -79,7 +81,7 @@ class CtFEnv(gym.Env):
     self.flags.append(Flag(len(self.map[0])-2,len(self.map)-2,2))
     self.map[len(self.map)-2][len(self.map[0])-2] = False
     for i in range(self.nbTeamMembers):
-      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2))
+      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2,self.observation_size))
       self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
 
   def step(self, action) :

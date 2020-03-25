@@ -2,14 +2,14 @@ import numpy as np
 
 class Agent:
 
-  def __init__(self, x, y, team):
+  def __init__(self, x, y, team, observation_size):
     self.posX = x
     self.posY = y
     self.team = team
     self.holdingFlag = False
     self.active = True
     self.reward = 0
-    self.visionRange = 7 # //!! This information must go in the JSON file which will hold all modifiable parametres
+    self.visionRange = observation_size # //!! This information must go in the JSON file which will hold all modifiable parametres
 
   def move(self,direction, map):
     # direction must be a table with 4 values, either 0 or 1. 
