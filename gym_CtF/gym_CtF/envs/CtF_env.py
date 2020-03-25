@@ -97,8 +97,8 @@ class CtFEnv(gym.Env):
       self.rewards = []
 
       for agentNb in range(len(self.agents)):
-        self.agents[agentNb].move(action[agentNb][0],self.map)
-        if action[agentNb][1] == 1:
+        self.agents[agentNb].move(action[agentNb][0:4],self.map)
+        if action[agentNb][4] == 1:
           self.agents[agentNb].attackself(map,self.agents,self.flags)
 
         self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
