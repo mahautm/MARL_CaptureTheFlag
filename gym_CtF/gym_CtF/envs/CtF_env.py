@@ -1,6 +1,4 @@
 import gym
-import random
-
 from gym_CtF.envs.flag import Flag
 from gym_CtF.envs.agent import Agent
 
@@ -42,6 +40,7 @@ from gym.utils import seeding
 """
 class CtFEnv(gym.Env):
   metadata = {'render.modes': ['human']}
+  
 
   def __init__(self):
     self.done = False
@@ -56,6 +55,8 @@ class CtFEnv(gym.Env):
 
     self.action_space = spaces.MultiBinary(2 * self.nbTeamMembers*5)
     self.rewards = np.zeros(self.nbTeamMembers*2)
+    self.seed()
+
     # There might come a time where teams are generated in a locked space
     # There will be a small probability of this happening.
     # It might later be dealt with by allowing interactions with environment
@@ -81,6 +82,11 @@ class CtFEnv(gym.Env):
     for i in range(self.nbTeamMembers):
       self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2,self.observation_size))
       self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
+    
+
+  def seed(self, seed=None):
+      self.np_random, seed = seeding.np_random(seed)
+      return [seed]
 
   def step(self, action) :
     # checkups for data structure
@@ -117,7 +123,8 @@ class CtFEnv(gym.Env):
     self.rewards = np.zeros(self.nbTeamMembers*2)
     self.agents = []
     self.flags = []
-
+    self.state = self.np_random.uniform(low=0, high=2, size=(self.observation_size, self.observation_size,self.nbTeamMembers,4), type=int)
+    self.steps_beyond_done = None
     self.flags.append(Flag(1,1,1))
     self.map[1][1] = False
 
@@ -131,6 +138,9 @@ class CtFEnv(gym.Env):
     for i in range(self.nbTeamMembers):
       self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2,self.observation_size))
       self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
+    
+    return np.array(self.state)
+
 
   def render(self, mode='human'):
     ...
@@ -181,7 +191,7 @@ class CtFEnv(gym.Env):
     cellmap = np.zeros((height, width))
     #  Initialise random map with "alive" parts
     for line in range(height):
-      cellmap[line] = [(random.random()<chanceToStartAlive) for _ in range(width)]
+      cellmap[line] = [(self.np_random.random()<chanceToStartAlive) for _ in range(width)]
 
     for i in range (numberOfSteps):
       cellmap = self.mapGenerationStep(cellmap,deathLimit,birthLimit)
