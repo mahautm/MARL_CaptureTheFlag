@@ -7,8 +7,6 @@ from gym_CtF.envs.agent import Agent
 import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
-
-class CtFEnv(gym.Env):
 """
     Description:
     A random map is generated with obstacles. 
@@ -42,6 +40,7 @@ class CtFEnv(gym.Env):
     Episode Termination:
       WIP
 """
+class CtFEnv(gym.Env):
   metadata = {'render.modes': ['human']}
 
   def __init__(self):
