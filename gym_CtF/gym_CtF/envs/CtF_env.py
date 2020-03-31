@@ -53,7 +53,7 @@ class CtFEnv(gym.Env):
     # This is what the agents will be allowed to see each turn --> The observation space
     #Documentation hardly exists, 
     # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
-    self.observation_space = spaces.Box(low=0, high=1, shape=(self.observation_size, self.observation_size,self.nbTeamMembers = 5,4), dtype=np.uint8)
+    self.observation_space = spaces.Box(low=0, high=1, shape=(self.observation_size, self.observation_size,self.nbTeamMembers,4), dtype=np.uint8)
 
     self.action_space = spaces.MultiBinary(2 * self.nbTeamMembers*5)
     self.rewards = np.zeros(self.nbTeamMembers*2)
@@ -118,10 +118,9 @@ class CtFEnv(gym.Env):
 
   def reset(self):
     # Maybe there is a difference between __init__ and this. If so I have not spotted it
-    self.done = False
+self.done = False
     self.map = self.generateMap(100,40)
-    self.nbTeamMembers = 5
-    self.state = np.zeros(self.nbTeamMembers*2,4)
+
     self.rewards = np.zeros(self.nbTeamMembers*2)
     self.agents = []
     self.flags = []
@@ -130,17 +129,16 @@ class CtFEnv(gym.Env):
     self.map[1][1] = False
 
     for i in range(self.nbTeamMembers):
-      self.agents.append(Agent((i+1)*2,2,1))
+      self.agents.append(Agent((i+1)*2,2,1,self.observation_size))
       self.map[2][(i+1)*2] = True
 
     
     self.flags.append(Flag(len(self.map[0])-2,len(self.map)-2,2))
     self.map[len(self.map)-2][len(self.map[0])-2] = False
     for i in range(self.nbTeamMembers):
-      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2))
+      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2,self.observation_size))
       self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
 
-      
   def render(self, mode='human'):
     ...
 
