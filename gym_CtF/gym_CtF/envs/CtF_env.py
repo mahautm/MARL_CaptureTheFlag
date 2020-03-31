@@ -56,7 +56,6 @@ class CtFEnv(gym.Env):
 
     self.action_space = spaces.MultiBinary(2 * self.nbTeamMembers*5)
     self.rewards = np.zeros(self.nbTeamMembers*2)
-
     # There might come a time where teams are generated in a locked space
     # There will be a small probability of this happening.
     # It might later be dealt with by allowing interactions with environment
@@ -85,25 +84,23 @@ class CtFEnv(gym.Env):
 
   def step(self, action) :
     # checkups for data structure
-    if len(self.agents) != len(action):
-      assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
-      return [self.state, self.rewards, self.done, self.add]
-    else:
-      self.state = []
-      self.rewards = []
+    assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
 
-      for agentNb in range(len(self.agents)):
-        self.agents[agentNb].move(action[agentNb][0:4],self.map)
-        if action[agentNb][4] == 1:
-          self.agents[agentNb].attackself(map,self.agents,self.flags)
+    self.state = []
+    self.rewards = []
 
-        self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
-        # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
-        rew = self.agents[agentNb].reward
-        self.rewards.append(rew)
-        # for now rewards are only assigned on victory, no heuristics
-        if rew != 0:
-          self.done = True
+    for agentNb in range(len(self.agents)):
+      self.agents[agentNb].move(action[agentNb][0:4],self.map)
+      if action[agentNb][4] == 1:
+        self.agents[agentNb].attackself(map,self.agents,self.flags)
+
+      self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
+      # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
+      rew = self.agents[agentNb].reward
+      self.rewards.append(rew)
+      # for now rewards are only assigned on victory, no heuristics
+      if rew != 0:
+        self.done = True
 
     # returns, in order, the state, the reward, and wether the game is over
     return [self.state, self.rewards, self.done, self.add]
