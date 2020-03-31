@@ -114,7 +114,7 @@ class CtFEnv(gym.Env):
 
   def reset(self):
     # Maybe there is a difference between __init__ and this. If so I have not spotted it
-self.done = False
+    self.done = False
     self.map = self.generateMap(100,40)
 
     self.rewards = np.zeros(self.nbTeamMembers*2)
