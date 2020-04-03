@@ -91,7 +91,7 @@ class CtFEnv(gym.Env):
 
   def step(self, action) :
     # checkups for data structure
-    # assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
+    assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
 
     self.state = []
     self.rewards = []
