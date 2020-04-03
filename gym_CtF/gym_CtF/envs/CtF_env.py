@@ -55,7 +55,7 @@ class CtFEnv(gym.Env):
 
     self.action_space = spaces.MultiBinary(2 * self.nbTeamMembers*5)
     self.rewards = np.zeros(self.nbTeamMembers*2)
-    np_random
+    np_random = null
     self.seed()
 
     # There might come a time where teams are generated in a locked space
