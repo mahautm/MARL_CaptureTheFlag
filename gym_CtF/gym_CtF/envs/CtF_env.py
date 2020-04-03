@@ -44,7 +44,6 @@ class CtFEnv(gym.Env):
 
   def __init__(self):
     self.done = False
-    self.map = self.generateMap(100,40)
     # There shall be two teams to begin with
     self.nbTeamMembers = 5
     self.observation_size = 7
@@ -57,6 +56,7 @@ class CtFEnv(gym.Env):
     self.rewards = np.zeros(self.nbTeamMembers*2)
     self.np_random = None 
     self.seed()
+    self.map = self.generateMap(100,40)
 
     # There might come a time where teams are generated in a locked space
     # There will be a small probability of this happening.
