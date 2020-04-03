@@ -124,7 +124,7 @@ class CtFEnv(gym.Env):
     self.rewards = np.zeros(self.nbTeamMembers*2)
     self.agents = []
     self.flags = []
-    self.state = self.np_random.uniform(low=0, high=2, size=(self.observation_size, self.observation_size,self.nbTeamMembers,4), type=int)
+    self.state = self.np_random.random_integers(low=0, high=2, size=(self.observation_size, self.observation_size,self.nbTeamMembers,4))
     self.steps_beyond_done = None
     self.flags.append(Flag(1,1,1))
     self.map[1][1] = False
