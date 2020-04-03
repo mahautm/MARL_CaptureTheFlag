@@ -52,7 +52,7 @@ class CtFEnv(gym.Env):
     # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
     self.observation_space = spaces.Box(low=0, high=2, shape=(self.observation_size, self.observation_size,self.nbTeamMembers,4), dtype=np.int64)
 
-    self.action_space = spaces.Box(low=0, high=2, shape=(2 * self.nbTeamMembers*5,),dtype=np.int64)
+    self.action_space = spaces.Box(low=0, high=2, shape=(2 * self.nbTeamMembers,5),dtype=np.int64)
     self.rewards = np.zeros(self.nbTeamMembers*2)
     self.np_random = None 
     self.seed()
