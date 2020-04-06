@@ -5,6 +5,7 @@ from gym_CtF.envs.agent import Agent
 import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
+
 """
     Description:
     A random map is generated with obstacles. 
@@ -38,173 +39,203 @@ from gym.utils import seeding
     Episode Termination:
       WIP
 """
+
+
 class CtFEnv(gym.Env):
-  metadata = {'render.modes': ['human']}
-  
+    metadata = {"render.modes": ["human"]}
 
-  def __init__(self):
-    self.done = False
-    # There shall be two teams to begin with
-    self.nbTeamMembers = 5
-    self.observation_size = 7
-    # This is what the agents will be allowed to see each turn --> The observation space
-    #Documentation hardly exists, 
-    # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
-    self.observation_space = spaces.Box(low=0, high=2, shape=(self.observation_size, self.observation_size,self.nbTeamMembers,4), dtype=np.int64)
+    def __init__(self):
+        self.done = False
+        # There shall be two teams to begin with
+        self.nbTeamMembers = 5
+        self.observation_size = 7
+        # This is what the agents will be allowed to see each turn --> The observation space
+        # Documentation hardly exists,
+        # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
+        self.observation_space = spaces.Box(
+            low=0,
+            high=2,
+            shape=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
+            dtype=np.int64,
+        )
 
-    self.action_space = spaces.Box(low=0, high=2, shape=(2 * self.nbTeamMembers,5),dtype=np.int64)
-    self.rewards = np.zeros(self.nbTeamMembers*2)
-    self.np_random = None 
-    self.seed()
-    self.map = self.generateMap(100,40)
+        self.action_space = spaces.Box(
+            low=0, high=2, shape=(2 * self.nbTeamMembers, 5), dtype=np.int64
+        )
+        self.rewards = np.zeros(self.nbTeamMembers * 2)
+        self.np_random = None
+        self.seed()
+        self.map = self.generateMap(100, 40)
 
-    # There might come a time where teams are generated in a locked space
-    # There will be a small probability of this happening.
-    # It might later be dealt with by allowing interactions with environment
-    self.agents = []
-    self.flags = []
+        # There might come a time where teams are generated in a locked space
+        # There will be a small probability of this happening.
+        # It might later be dealt with by allowing interactions with environment
+        self.agents = []
+        self.flags = []
 
-    # First team Flag is built
-    self.flags.append(Flag(1,1,1))
-    # A flag, unlike a wall, can share its space, we remove walls on this location
-    self.map[1][1] = False
+        # First team Flag is built
+        self.flags.append(Flag(1, 1, 1))
+        # A flag, unlike a wall, can share its space, we remove walls on this location
+        self.map[1][1] = False
 
-    # First team members are assigned starting position in top left corner
-    for i in range(self.nbTeamMembers):
-      # positioned so as to be spaced by one from each other
-      self.agents.append(Agent((i+1)*2,2,1,self.observation_size))
-      # We add a Wall : You wannot walk on an agent
-      self.map[2][(i+1)*2] = True
+        # First team members are assigned starting position in top left corner
+        for i in range(self.nbTeamMembers):
+            # positioned so as to be spaced by one from each other
+            self.agents.append(Agent((i + 1) * 2, 2, 1, self.observation_size))
+            # We add a Wall : You wannot walk on an agent
+            self.map[2][(i + 1) * 2] = True
 
-    
-    #  Same for second Flag and team members, in bottom right corner
-    self.flags.append(Flag(len(self.map[0])-2,len(self.map)-2,2))
-    self.map[len(self.map)-2][len(self.map[0])-2] = False
-    for i in range(self.nbTeamMembers):
-      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2,self.observation_size))
-      self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
-    
+        #  Same for second Flag and team members, in bottom right corner
+        self.flags.append(Flag(len(self.map[0]) - 2, len(self.map) - 2, 2))
+        self.map[len(self.map) - 2][len(self.map[0]) - 2] = False
+        for i in range(self.nbTeamMembers):
+            self.agents.append(
+                Agent(
+                    len(self.map[0]) - (i + 2) * 2,
+                    len(self.map) - 3,
+                    2,
+                    self.observation_size,
+                )
+            )
+            self.map[len(self.map) - 3][len(self.map[0]) - (i + 2) * 2] = True
 
-  def seed(self, seed=None):
-      self.np_random, seed = seeding.np_random(seed)
-      return [seed]
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
-  def step(self, action) :
-    # checkups for data structure
-    assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
+    def step(self, action):
+        # checkups for data structure
+        assert self.action_space.contains(action), "%r (%s) invalid" % (
+            action,
+            type(action),
+        )
 
-    self.state = []
-    self.rewards = []
+        self.state = []
+        self.rewards = []
 
-    for agentNb in range(len(self.agents)):
-      self.agents[agentNb].move(action[agentNb][0:4],self.map)
-      if action[agentNb][4] == 1:
-        self.agents[agentNb].attackself(map,self.agents,self.flags)
+        for agentNb in range(len(self.agents)):
+            self.agents[agentNb].move(action[agentNb][0:4], self.map)
+            if action[agentNb][4] == 1:
+                self.agents[agentNb].attackself(map, self.agents, self.flags)
 
-      self.state.append(self.agents[agentNb].sight(self.map,self.flags, self.agents))
-      # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
-      rew = self.agents[agentNb].reward
-      self.rewards.append(rew)
-      # for now rewards are only assigned on victory, no heuristics
-      if rew != 0:
-        self.done = True
+            self.state.append(
+                self.agents[agentNb].sight(self.map, self.flags, self.agents)
+            )
+            # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
+            rew = self.agents[agentNb].reward
+            self.rewards.append(rew)
+            # for now rewards are only assigned on victory, no heuristics
+            if rew != 0:
+                self.done = True
 
-    # returns, in order, the state, the reward, and wether the game is over
-    return [self.state, self.rewards, self.done, self.add]
+        # returns, in order, the state, the reward, and wether the game is over
+        return [self.state, self.rewards, self.done, self.add]
 
-    # In agents there should be a table per agent, and inside that movement, then other actions
+        # In agents there should be a table per agent, and inside that movement, then other actions
 
-    
+    def reset(self):
+        # Maybe there is a difference between __init__ and this. If so I have not spotted it
+        self.done = False
+        self.map = self.generateMap(100, 40)
 
-  def reset(self):
-    # Maybe there is a difference between __init__ and this. If so I have not spotted it
-    self.done = False
-    self.map = self.generateMap(100,40)
+        self.rewards = np.zeros(self.nbTeamMembers * 2)
+        self.agents = []
+        self.flags = []
+        self.state = self.np_random.random_integers(
+            low=0,
+            high=2,
+            size=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
+        )
+        self.steps_beyond_done = None
+        self.flags.append(Flag(1, 1, 1))
+        self.map[1][1] = False
 
-    self.rewards = np.zeros(self.nbTeamMembers*2)
-    self.agents = []
-    self.flags = []
-    self.state = self.np_random.random_integers(low=0, high=2, size=(self.observation_size, self.observation_size,self.nbTeamMembers,4))
-    self.steps_beyond_done = None
-    self.flags.append(Flag(1,1,1))
-    self.map[1][1] = False
+        for i in range(self.nbTeamMembers):
+            self.agents.append(Agent((i + 1) * 2, 2, 1, self.observation_size))
+            self.map[2][(i + 1) * 2] = True
 
-    for i in range(self.nbTeamMembers):
-      self.agents.append(Agent((i+1)*2,2,1,self.observation_size))
-      self.map[2][(i+1)*2] = True
+        self.flags.append(Flag(len(self.map[0]) - 2, len(self.map) - 2, 2))
+        self.map[len(self.map) - 2][len(self.map[0]) - 2] = False
+        for i in range(self.nbTeamMembers):
+            self.agents.append(
+                Agent(
+                    len(self.map[0]) - (i + 2) * 2,
+                    len(self.map) - 3,
+                    2,
+                    self.observation_size,
+                )
+            )
+            self.map[len(self.map) - 3][len(self.map[0]) - (i + 2) * 2] = True
 
-    
-    self.flags.append(Flag(len(self.map[0])-2,len(self.map)-2,2))
-    self.map[len(self.map)-2][len(self.map[0])-2] = False
-    for i in range(self.nbTeamMembers):
-      self.agents.append(Agent(len(self.map[0])-(i+2)*2,len(self.map)-3,2,self.observation_size))
-      self.map[len(self.map)-3][len(self.map[0])-(i+2)*2] = True
-    
-    return np.array(self.state)
+        return np.array(self.state)
 
+    def render(self, mode="human"):
+        ...
 
-  def render(self, mode='human'):
-    ...
+    # No idea what this one does or is supposed to do
+    # def close(self):
+    #   ...
 
+    def mapCountAliveNeighbours(self, map, x, y):
+        count = 0
+        for i in range(3):
+            for j in range(3):
+                neighbour_x = x + j - 1
+                neighbour_y = y + i - 1
+                # In case the index we're looking off the edge of the map
+                if (
+                    neighbour_x < 0
+                    or neighbour_y < 0
+                    or neighbour_y >= len(map)
+                    or neighbour_x >= len(map[0])
+                ):
+                    count += 1
+                # Otherwise, a normal check of the neighbour
+                elif map[neighbour_y][neighbour_x] and (i != 0 and j != 0):
+                    count += 1
+        return count
 
-  # No idea what this one does or is supposed to do
-  # def close(self):
-  #   ...
+    def mapGenerationStep(self, oldMap, deathLimit, birthLimit):
+        # print(toStringMap(oldMap))
+        newMap = np.zeros((len(oldMap), len(oldMap[0])))
+        # for line in range(len(oldMap)):
+        #   newMap[line] = [(False) for _ in range(len(oldMap[0]))]
+        for y in range(len(oldMap)):
+            for x in range(len(oldMap[0])):
+                liveNeighbours = self.mapCountAliveNeighbours(oldMap, x, y)
+                if oldMap[y][x]:
+                    newMap[y][x] = liveNeighbours >= deathLimit
+                else:
+                    newMap[y][x] = liveNeighbours >= birthLimit
+        return newMap
 
-  def mapCountAliveNeighbours(self,map,x,y):
-    count = 0
-    for i in range(3):
-      for j in range(3):
-            neighbour_x = x+j-1
-            neighbour_y = y+i-1
-            # In case the index we're looking off the edge of the map
-            if (neighbour_x < 0 or neighbour_y < 0 or neighbour_y >= len(map) or neighbour_x >= len(map[0])):
-              count += 1
-            # Otherwise, a normal check of the neighbour
-            elif(map[neighbour_y][neighbour_x] and (i != 0 and j !=0)):
-              count += 1
-    return count
+    def generateMap(self, width, height):
+        # Game of life like algorythm is used to build map
+        chanceToStartAlive = 0.65
+        deathLimit = 3
+        birthLimit = 4
+        numberOfSteps = 3
 
-  def mapGenerationStep(self, oldMap, deathLimit, birthLimit):
-    # print(toStringMap(oldMap))
-    newMap = np.zeros((len(oldMap),len(oldMap[0])))
-    # for line in range(len(oldMap)):
-    #   newMap[line] = [(False) for _ in range(len(oldMap[0]))]
-    for y in range(len(oldMap)):
-      for x in range(len(oldMap[0])):
-        liveNeighbours = self.mapCountAliveNeighbours(oldMap,x,y)
-        if oldMap[y][x]:
-          newMap[y][x] = (liveNeighbours >= deathLimit)
-        else:
-          newMap[y][x] = (liveNeighbours >= birthLimit)
-    return newMap
+        # generate empty map
+        cellmap = np.zeros((height, width))
+        #  Initialise random map with "alive" parts
+        for line in range(height):
+            cellmap[line] = [
+                (self.np_random.random() < chanceToStartAlive) for _ in range(width)
+            ]
 
+        for i in range(numberOfSteps):
+            cellmap = self.mapGenerationStep(cellmap, deathLimit, birthLimit)
+        return cellmap
 
+    def toStringMap(self, map):
+        visualMap = ""
+        for y in range(len(map)):
+            for x in range(len(map[0])):
+                if map[y][x]:
+                    visualMap += u"\u2588"
+                else:
+                    visualMap += " "
+            visualMap += "\n"
+        return visualMap
 
-  def generateMap(self, width,height):
-    # Game of life like algorythm is used to build map
-    chanceToStartAlive = 0.65
-    deathLimit = 3
-    birthLimit = 4
-    numberOfSteps = 3
-  
-    # generate empty map
-    cellmap = np.zeros((height, width))
-    #  Initialise random map with "alive" parts
-    for line in range(height):
-      cellmap[line] = [(self.np_random.random()<chanceToStartAlive) for _ in range(width)]
-
-    for i in range (numberOfSteps):
-      cellmap = self.mapGenerationStep(cellmap,deathLimit,birthLimit)
-    return cellmap 
-
-  def toStringMap(self,map):
-    visualMap = ''
-    for y in range(len(map)):
-      for x in range(len(map[0])):
-        if map[y][x]:
-          visualMap+=u"\u2588"
-        else:
-          visualMap+=" "
-      visualMap+='\n'
-    return(visualMap)
