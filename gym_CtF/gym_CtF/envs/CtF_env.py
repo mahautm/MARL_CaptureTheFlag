@@ -224,7 +224,7 @@ class CtFEnv(gym.Env):
                 (self.np_random.random() < chanceToStartAlive) for _ in range(width)
             ]
 
-        for i in range(numberOfSteps):
+        for _ in range(numberOfSteps):
             cellmap = self.mapGenerationStep(cellmap, deathLimit, birthLimit)
         return cellmap
 
@@ -238,4 +238,3 @@ class CtFEnv(gym.Env):
                     visualMap += " "
             visualMap += "\n"
         return visualMap
-
