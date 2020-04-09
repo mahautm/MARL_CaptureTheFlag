@@ -45,7 +45,6 @@ class CtFEnv(gym.Env):
     metadata = {"render.modes": ["human"]}
 
     def __init__(self):
-        self.done = False
         # There shall be two teams to begin with
         self.nbTeamMembers = 5
         self.observation_size = 7
@@ -62,42 +61,10 @@ class CtFEnv(gym.Env):
         self.action_space = spaces.Box(
             low=0, high=2, shape=(2 * self.nbTeamMembers * 5,), dtype=np.int64
         )
-        self.rewards = np.zeros(self.nbTeamMembers * 2)
+
         self.np_random = None
         self.seed()
-        self.map = self.generateMap(100, 40)
-
-        # There might come a time where teams are generated in a locked space
-        # There will be a small probability of this happening.
-        # It might later be dealt with by allowing interactions with environment
-        self.agents = []
-        self.flags = []
-
-        # First team Flag is built
-        self.flags.append(Flag(1, 1, 1))
-        # A flag, unlike a wall, can share its space, we remove walls on this location
-        self.map[1][1] = False
-
-        # First team members are assigned starting position in top left corner
-        for i in range(self.nbTeamMembers):
-            # positioned so as to be spaced by one from each other
-            self.agents.append(Agent((i + 1) * 2, 2, 1, self.observation_size))
-            # We add a Wall : You wannot walk on an agent
-            self.map[2][(i + 1) * 2] = True
-
-        #  Same for second Flag and team members, in bottom right corner
-        self.flags.append(Flag(len(self.map[0]) - 2, len(self.map) - 2, 2))
-        self.map[len(self.map) - 2][len(self.map[0]) - 2] = False
-        for i in range(self.nbTeamMembers):
-            self.agents.append(
-                Agent(
-                    len(self.map[0]) - (i + 2) * 2,
-                    len(self.map) - 3,
-                    2,
-                    self.observation_size,
-                )
-            )
-            self.map[len(self.map) - 3][len(self.map[0]) - (i + 2) * 2] = True
+        self.reset()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -118,12 +85,13 @@ class CtFEnv(gym.Env):
             if action[agentNb * 5 + 4] == 1:
                 self.agents[agentNb].attackself(map, self.agents, self.flags)
 
-            self.state.append(
-                self.agents[agentNb].sight(self.map, self.flags, self.agents)
+            np.append(
+                self.state,
+                self.agents[agentNb].sight(self.map, self.flags, self.agents),
             )
             # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
             rew = self.agents[agentNb].reward
-            self.rewards.append(rew)
+            np.append(self.rewards, rew)
             # for now rewards are only assigned on victory, no heuristics
             if rew != 0:
                 self.done = True
@@ -135,36 +103,39 @@ class CtFEnv(gym.Env):
         # In agents there should be a table per agent, and inside that movement, then other actions
 
     def reset(self):
-        # Maybe there is a difference between __init__ and this. If so I have not spotted it
         self.done = False
         self.map = self.generateMap(100, 40)
-
         self.rewards = np.zeros(self.nbTeamMembers * 2)
-        self.agents = []
-        self.flags = []
-        self.state = self.np_random.random_integers(
-            low=0,
-            high=2,
-            size=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
-        )
-        self.steps_beyond_done = None
-        self.flags.append(Flag(1, 1, 1))
+        # There might come a time where teams are generated in a locked space
+        # There will be a small probability of this happening.
+        # It might later be dealt with by allowing interactions with environment
+        self.agents = np.array([])
+        self.flags = np.array([])
+
+        # First team Flag is built
+        np.append(self.flags, Flag(1, 1, 1))
+        # A flag, unlike a wall, can share its space, we remove walls on this location
         self.map[1][1] = False
 
+        # First team members are assigned starting position in top left corner
         for i in range(self.nbTeamMembers):
-            self.agents.append(Agent((i + 1) * 2, 2, 1, self.observation_size))
+            # positioned so as to be spaced by one from each other
+            np.append(self.agents, Agent((i + 1) * 2, 2, 1, self.observation_size))
+            # We add a Wall : You wannot walk on an agent
             self.map[2][(i + 1) * 2] = True
 
-        self.flags.append(Flag(len(self.map[0]) - 2, len(self.map) - 2, 2))
+        #  Same for second Flag and team members, in bottom right corner
+        np.append(self.flags, Flag(len(self.map[0]) - 2, len(self.map) - 2, 2))
         self.map[len(self.map) - 2][len(self.map[0]) - 2] = False
         for i in range(self.nbTeamMembers):
-            self.agents.append(
+            np.append(
+                self.agents,
                 Agent(
                     len(self.map[0]) - (i + 2) * 2,
                     len(self.map) - 3,
                     2,
                     self.observation_size,
-                )
+                ),
             )
             self.map[len(self.map) - 3][len(self.map[0]) - (i + 2) * 2] = True
 
