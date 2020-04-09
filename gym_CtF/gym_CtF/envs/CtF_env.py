@@ -96,7 +96,7 @@ class CtFEnv(gym.Env):
             if rew != 0:
                 self.done = True
             # Optionally we can pass additional info, we are not using that for now
-            info = {}
+        info = {}
         # returns, in order, the state, the reward, and wether the game is over
         return self.state, self.rewards, self.done, info
 
