@@ -60,7 +60,7 @@ class CtFEnv(gym.Env):
         )
 
         self.action_space = spaces.Box(
-            low=0, high=2, shape=(2 * self.nbTeamMembers * 5), dtype=np.int64
+            low=0, high=2, shape=(2 * self.nbTeamMembers * 5,), dtype=np.int64
         )
         self.rewards = np.zeros(self.nbTeamMembers * 2)
         self.np_random = None
