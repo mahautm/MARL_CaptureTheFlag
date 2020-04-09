@@ -60,7 +60,7 @@ class CtFEnv(gym.Env):
         )
 
         self.action_space = spaces.Box(
-            low=0, high=2, shape=(2 * self.nbTeamMembers, 5), dtype=np.int64
+            low=0, high=2, shape=(2 * self.nbTeamMembers * 5), dtype=np.int64
         )
         self.rewards = np.zeros(self.nbTeamMembers * 2)
         self.np_random = None
@@ -110,12 +110,14 @@ class CtFEnv(gym.Env):
             type(action),
         )
 
-        self.state = []
-        self.rewards = []
+        self.state = np.array([])
+        self.rewards = np.array([])
 
         for agentNb in range(len(self.agents)):
-            self.agents[agentNb].move(action[agentNb][0:4], self.map)
-            if action[agentNb][4] == 1:
+            self.agents[agentNb].move(
+                action[agentNb][agentNb * 5 : agentNb * 5 + 4], self.map
+            )
+            if action[agentNb][agentNb * 5 + 4] == 1:
                 self.agents[agentNb].attackself(map, self.agents, self.flags)
 
             self.state.append(
@@ -127,9 +129,10 @@ class CtFEnv(gym.Env):
             # for now rewards are only assigned on victory, no heuristics
             if rew != 0:
                 self.done = True
-
+            # Optionally we can pass additional info, we are not using that for now
+            info = {}
         # returns, in order, the state, the reward, and wether the game is over
-        return [self.state, self.rewards, self.done, self.add]
+        return self.state, self.rewards, self.done, info
 
         # In agents there should be a table per agent, and inside that movement, then other actions
 
@@ -167,14 +170,16 @@ class CtFEnv(gym.Env):
             )
             self.map[len(self.map) - 3][len(self.map[0]) - (i + 2) * 2] = True
 
-        return np.array(self.state)
+        return self.state
 
-    def render(self, mode="human"):
-        ...
+    def render(self, mode="console"):
+        if mode != "console":
+            raise NotImplementedError()
+        print(self.toStringMap(self.map))
 
-    # No idea what this one does or is supposed to do
-    # def close(self):
-    #   ...
+    def close(self):
+        # no idea what this does, just going with the flow here
+        pass
 
     def mapCountAliveNeighbours(self, map, x, y):
         count = 0
