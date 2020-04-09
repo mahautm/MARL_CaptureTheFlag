@@ -106,6 +106,12 @@ class CtFEnv(gym.Env):
         self.done = False
         self.map = self.generateMap(100, 40)
         self.rewards = np.zeros(self.nbTeamMembers * 2)
+        self.state = self.np_random.random_integers(
+            low=0,
+            high=2,
+            size=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
+        )
+        self.steps_beyond_done = None
         # There might come a time where teams are generated in a locked space
         # There will be a small probability of this happening.
         # It might later be dealt with by allowing interactions with environment
