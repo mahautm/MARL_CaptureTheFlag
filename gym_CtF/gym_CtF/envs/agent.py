@@ -15,7 +15,7 @@ class Agent:
         if self.active:
             # direction must be a table with 4 values, either 0 or 1.
             # first value is left, second right, third up, fourth down
-
+            direction = direction.astype(int)
             # we check on the map if there is a wall at destination
             if (
                 map[self.posY + direction[2] - direction[3]][
