@@ -95,10 +95,16 @@ class CtFEnv(gym.Env):
             # for now rewards are only assigned on victory, no heuristics
             if rew != 0:
                 self.done = True
-            # Optionally we can pass additional info, we are not using that for now
+        # Optionally we can pass additional info, we are not using that for now
         info = {}
+
+        # //!!\\ Temporary fix :
+        # To use the baseline, their must be ONE SINGLE REWARD. This is not good to train 10 different models
+        reward = np.sum(self.rewards)
+        return self.state, reward, self.done, info
+
         # returns, in order, the state, the reward, and wether the game is over
-        return self.state, self.rewards, self.done, info
+        # return self.state, self.rewards, self.done, info
 
         # In agents there should be a table per agent, and inside that movement, then other actions
 
