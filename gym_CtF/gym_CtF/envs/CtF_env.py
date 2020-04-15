@@ -13,7 +13,7 @@ from gym.utils import seeding
     They each must capture the other team's flag without being killed by their opponent.
     First team to capture a flag wins.
 
-    Observation: 
+    Observation:  (//!! has been modified)
       Type: Box(x*x*self.nbTeamMembers*4)
       each agent has 4 x*x sized maps for :
       Num	Action
@@ -22,8 +22,8 @@ from gym.utils import seeding
         2 shows friendly agents in surrounding positions, 0 meaning no friend, 1 meaning a friend is on the position
         3 shows ennemy agents in surrounding positions, 0 meaning no ennemy, 1 meaning a ennemy is on the position
         
-    Actions:
-      Type: MultiBinary(2 * self.nbTeamMembers * 5) 
+    Actions: (//!! has been modified)
+      Type: Box(2 * self.nbTeamMembers * 5) 
       For each team member, in each team:
       Num	Action
         0	  move left
@@ -122,7 +122,10 @@ class CtFEnv(gym.Env):
         self.state = self.np_random.random_integers(
             low=0,
             high=2,
-            size=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
+            # //!!\\ here be a modification for the observation space due to openAI baseline compatibility
+            size=(
+                self.observation_size * self.observation_size * self.nbTeamMembers * 4,
+            ),
         )
         self.steps_beyond_done = None
         # There might come a time where teams are generated in a locked space
