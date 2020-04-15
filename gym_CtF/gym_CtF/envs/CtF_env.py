@@ -53,7 +53,7 @@ class CtFEnv(gym.Env):
         # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
         self.observation_space = spaces.Box(
             low=0,
-            high=2,
+            high=1,
             # //!!\\ Temporary fix :
             # openAI baselines don't like multi dimensional input spaces so we're attempting 1d which will be hell to interpret.
             # should revert asap
@@ -64,7 +64,7 @@ class CtFEnv(gym.Env):
         )
 
         self.action_space = spaces.Box(
-            low=0, high=2, shape=(2 * self.nbTeamMembers * 5,), dtype=np.int64
+            low=0, high=1, shape=(2 * self.nbTeamMembers * 5,), dtype=np.int64
         )
 
         self.np_random = None
@@ -82,8 +82,8 @@ class CtFEnv(gym.Env):
             type(action),
         )
 
-        self.state = np.array([])
-        self.rewards = np.array([])
+        self.state = []
+        self.rewards = []
 
         for agentNb in range(len(self.agents)):
             self.agents[agentNb].move(action[agentNb * 5 : agentNb * 5 + 4], self.map)
@@ -119,14 +119,7 @@ class CtFEnv(gym.Env):
         self.done = False
         self.map = self.generateMap(100, 40)
         self.rewards = np.zeros(self.nbTeamMembers * 2)
-        self.state = self.np_random.randint(
-            low=0,
-            high=2,
-            # //!!\\ here be a modification for the observation space due to openAI baseline compatibility
-            size=(
-                self.observation_size * self.observation_size * self.nbTeamMembers * 4,
-            ),
-        )
+        self.state = self.observation_space.sample()
         self.steps_beyond_done = None
         # There might come a time where teams are generated in a locked space
         # There will be a small probability of this happening.
