@@ -240,8 +240,8 @@ class CtFEnv(gym.Env):
             visualMap += "\n"
         return visualMap
 
-    def toStringLiveMap(map, agents, flags):
-        visualMap = toStringMap(map)
+    def toStringLiveMap(self, map, agents, flags):
+        visualMap = self.toStringMap(map)
         for agent in agents:
             # +2 is to account for \n at the end of each line
             index = agent.posX + agent.posY * (len(map[0]) + 1)
