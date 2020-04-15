@@ -57,9 +57,7 @@ class CtFEnv(gym.Env):
             # //!!\\ Temporary fix :
             # openAI baselines don't like multi dimensional input spaces so we're attempting 1d which will be hell to interpret.
             # should revert asap
-            shape=(
-                self.observation_size * self.observation_size * self.nbTeamMembers * 4,
-            ),
+            shape=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
             dtype=np.int64,
         )
 
