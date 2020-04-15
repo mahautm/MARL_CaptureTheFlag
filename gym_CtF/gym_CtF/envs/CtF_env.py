@@ -243,16 +243,18 @@ class CtFEnv(gym.Env):
     def toStringLiveMap(map, agents, flags):
         visualMap = toStringMap(map)
         for agent in agents:
-        # +2 is to account for \n at the end of each line
-            index = agent.posX + agent.posY * (len(map[0])+1)
-            visualMap = visualMap[:index] + agent.team.__str__() + visualMap[index + 1:]
+            # +2 is to account for \n at the end of each line
+            index = agent.posX + agent.posY * (len(map[0]) + 1)
+            visualMap = (
+                visualMap[:index] + agent.team.__str__() + visualMap[index + 1 :]
+            )
 
         for flag in flags:
             if flag.posX < len(map) and flag.posY < (len(map[0])):
-            index = flag.posX + flag.posY * (len(map[0])+1)
-            if(flag.team == 1):
-                visualMap = visualMap[:index] + 'O' + visualMap[index + 1:]
-            else :
-                visualMap = visualMap[:index] + 'X' + visualMap[index + 1:]
+                index = flag.posX + flag.posY * (len(map[0]) + 1)
+            if flag.team == 1:
+                visualMap = visualMap[:index] + "O" + visualMap[index + 1 :]
+            else:
+                visualMap = visualMap[:index] + "X" + visualMap[index + 1 :]
 
         return visualMap
