@@ -48,7 +48,7 @@ class Agent:
                         and abs(self.posY - agent.posY) <= 1
                     ):
                         # Warn of agent and death, and disactivate him
-                        print("Agent from team " + agent.team + " has been killed")
+                        print("Agent from team " + str(agent.team) + " has been killed")
                         agent.active = False
 
     def updateReward(self, flags, agents):
@@ -65,7 +65,7 @@ class Agent:
                     self.posY - flag.posY
                 )
                 if heuristicDistance == 0:
-                    # print("Flag has been captured, victory to team " + self.team)
+                    print("Flag has been captured, victory to team " + self.team)
                     self.reward = 1000
                 else:
                     self.reward = 1 / heuristicDistance * 100  # reward in percentage
