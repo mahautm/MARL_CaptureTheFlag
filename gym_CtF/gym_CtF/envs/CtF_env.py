@@ -54,7 +54,9 @@ class CtFEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=0,
             high=2,
-            shape=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
+            shape=(
+                self.observation_size * self.observation_size * self.nbTeamMembers * 4
+            ),
             dtype=np.int64,
         )
 

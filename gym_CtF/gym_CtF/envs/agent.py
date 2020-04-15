@@ -99,7 +99,15 @@ class Agent:
                         ):
                             visibleFlags[i][j] = True
 
-        TotalMap = np.array(
-            [visibleWalls, visibleFlags, visibleFriends, visibleEnemies]
+        # //!!\\ this is here because of openAI baselines rejection of multiD input
+        # doesn't seem very readable, revert if possible
+        TotalMap = np.concatenate(
+            np.array(visibleWalls),
+            np.array(visibleFlags),
+            np.array(visibleFriends),
+            np.array(visibleEnemies),
         )
+        # TotalMap = np.array(
+        #     [visibleWalls, visibleFlags, visibleFriends, visibleEnemies]
+        # )
         return TotalMap
