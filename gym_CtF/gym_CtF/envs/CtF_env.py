@@ -90,11 +90,9 @@ class CtFEnv(gym.Env):
             if action[agentNb * 5 + 4] == 1:
                 self.agents[agentNb].attackself(map, self.agents, self.flags)
 
-            self.state = np.concatenate(
-                [
-                    self.state,
-                    self.agents[agentNb].sight(self.map, self.flags, self.agents),
-                ]
+            self.state = np.append(
+                self.state,
+                self.agents[agentNb].sight(self.map, self.flags, self.agents),
             )
             # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
             rew = self.agents[agentNb].reward
