@@ -154,7 +154,7 @@ class CtFEnv(gym.Env):
             )
             self.map[len(self.map) - 3][len(self.map[0]) - (i + 2) * 2] = True
 
-        return self.state
+        return np.array(self.state)
 
     def render(self, mode="console"):
         if mode != "console":
