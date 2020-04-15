@@ -88,7 +88,7 @@ class CtFEnv(gym.Env):
         for agentNb in range(len(self.agents)):
             self.agents[agentNb].move(action[agentNb * 5 : agentNb * 5 + 4], self.map)
             if action[agentNb * 5 + 4] == 1:
-                self.agents[agentNb].attackself(map, self.agents, self.flags)
+                self.agents[agentNb].attack(map, self.agents, self.flags)
 
             self.state = np.append(
                 self.state,
