@@ -119,7 +119,7 @@ class CtFEnv(gym.Env):
         self.done = False
         self.map = self.generateMap(100, 40)
         self.rewards = np.zeros(self.nbTeamMembers * 2)
-        self.state = self.np_random.random_integers(
+        self.state = self.np_random.randint(
             low=0,
             high=2,
             # //!!\\ here be a modification for the observation space due to openAI baseline compatibility
