@@ -54,8 +54,11 @@ class CtFEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=0,
             high=2,
+            # //!!\\ Temporary fix :
+            # openAI baselines don't like multi dimensional input spaces so we're attempting 1d which will be hell to interpret.
+            # should revert asap
             shape=(
-                self.observation_size * self.observation_size * self.nbTeamMembers * 4
+                self.observation_size * self.observation_size * self.nbTeamMembers * 4,
             ),
             dtype=np.int64,
         )
@@ -87,7 +90,7 @@ class CtFEnv(gym.Env):
             if action[agentNb * 5 + 4] == 1:
                 self.agents[agentNb].attackself(map, self.agents, self.flags)
 
-            np.append(
+            np.concatenate(
                 self.state,
                 self.agents[agentNb].sight(self.map, self.flags, self.agents),
             )
