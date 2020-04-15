@@ -90,16 +90,15 @@ class CtFEnv(gym.Env):
             if action[agentNb * 5 + 4] == 1:
                 self.agents[agentNb].attackself(map, self.agents, self.flags)
 
-            np.concatenate(
+            self.state = np.concatenate(
                 [
                     self.state,
                     self.agents[agentNb].sight(self.map, self.flags, self.agents),
                 ]
             )
-            print(self.state)
             # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
             rew = self.agents[agentNb].reward
-            np.append(self.rewards, rew)
+            self.rewards = np.append(self.rewards, rew)
             # for now rewards are only assigned on victory, no heuristics
             if rew != 0:
                 self.done = True
@@ -129,22 +128,26 @@ class CtFEnv(gym.Env):
         self.flags = np.array([])
 
         # First team Flag is built
-        np.append(self.flags, Flag(1, 1, 1))
+        self.flags = np.append(self.flags, Flag(1, 1, 1))
         # A flag, unlike a wall, can share its space, we remove walls on this location
         self.map[1][1] = False
 
         # First team members are assigned starting position in top left corner
         for i in range(self.nbTeamMembers):
             # positioned so as to be spaced by one from each other
-            np.append(self.agents, Agent((i + 1) * 2, 2, 1, self.observation_size))
+            self.agents = np.append(
+                self.agents, Agent((i + 1) * 2, 2, 1, self.observation_size)
+            )
             # We add a Wall : You wannot walk on an agent
             self.map[2][(i + 1) * 2] = True
 
         #  Same for second Flag and team members, in bottom right corner
-        np.append(self.flags, Flag(len(self.map[0]) - 2, len(self.map) - 2, 2))
+        self.flags = np.append(
+            self.flags, Flag(len(self.map[0]) - 2, len(self.map) - 2, 2)
+        )
         self.map[len(self.map) - 2][len(self.map[0]) - 2] = False
         for i in range(self.nbTeamMembers):
-            np.append(
+            self.agents = np.append(
                 self.agents,
                 Agent(
                     len(self.map[0]) - (i + 2) * 2,
