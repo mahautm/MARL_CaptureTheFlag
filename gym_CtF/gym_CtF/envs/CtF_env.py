@@ -57,7 +57,9 @@ class CtFEnv(gym.Env):
             # //!!\\ Temporary fix :
             # openAI baselines don't like multi dimensional input spaces so we're attempting 1d which will be hell to interpret.
             # should revert asap
-            shape=(self.observation_size, self.observation_size, self.nbTeamMembers, 4),
+            shape=(
+                self.observation_size * self.observation_size * self.nbTeamMembers * 4,
+            ),
             dtype=np.int64,
         )
 
@@ -89,8 +91,10 @@ class CtFEnv(gym.Env):
                 self.agents[agentNb].attackself(map, self.agents, self.flags)
 
             np.concatenate(
-                self.state,
-                self.agents[agentNb].sight(self.map, self.flags, self.agents),
+                [
+                    self.state,
+                    self.agents[agentNb].sight(self.map, self.flags, self.agents),
+                ]
             )
             # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
             rew = self.agents[agentNb].reward
