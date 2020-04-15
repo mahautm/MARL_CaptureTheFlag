@@ -96,6 +96,7 @@ class CtFEnv(gym.Env):
                     self.agents[agentNb].sight(self.map, self.flags, self.agents),
                 ]
             )
+            print(self.state)
             # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
             rew = self.agents[agentNb].reward
             np.append(self.rewards, rew)
