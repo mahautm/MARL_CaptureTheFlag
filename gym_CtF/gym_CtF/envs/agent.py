@@ -65,7 +65,7 @@ class Agent:
                     self.posY - flag.posY
                 )
                 if heuristicDistance == 0:
-                    print("Flag has been captured, victory to team " + self.team)
+                    print("Flag has been captured, victory to team " + str(self.team))
                     self.reward = 1000
                 else:
                     self.reward = 1 / heuristicDistance * 100  # reward in percentage
