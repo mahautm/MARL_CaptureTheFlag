@@ -51,25 +51,30 @@ class CtFEnv(gym.Env):
         # This is what the agents will be allowed to see each turn --> The observation space
         # Documentation hardly exists,
         # from reading the code I'll just align binary, event if that seems like a sub-optimal solution
-        self.observation_space = spaces.Box(
-            low=0,
-            high=1,
-            # //!!\\ Temporary fix :
-            # openAI baselines don't like multi dimensional input spaces so we're attempting 1d which will be hell to interpret.
-            # should revert asap
-            shape=(
-                self.observation_size
-                * self.observation_size
-                * self.nbTeamMembers
-                * 2
-                * 4,
-            ),
-            dtype=np.int64,
+        # self.observation_space = spaces.Box(
+        #     low=0,
+        #     high=1,
+        #     # //!!\\ Temporary fix :
+        #     # openAI baselines don't like multi dimensional input spaces so we're attempting 1d which will be hell to interpret.
+        #     # should revert asap
+        #     shape=(
+        #         self.observation_size
+        #         * self.observation_size
+        #         * self.nbTeamMembers
+        #         * 2
+        #         * 4,
+        #     ),
+        #     dtype=np.int64,
+        # )
+
+        self.observation_space = spaces.MultiBinary(
+            self.observation_size * self.observation_size * self.nbTeamMembers * 2 * 4
         )
 
-        self.action_space = spaces.Box(
-            low=0, high=1, shape=(2 * self.nbTeamMembers * 5,), dtype=np.int64
-        )
+        # self.action_space = spaces.Box(
+        #     low=0, high=1, shape=(2 * self.nbTeamMembers * 5,), dtype=np.int64
+        # )
+        self.action_space = spaces.MultiBinary(2 * self.nbTeamMembers * 5)
 
         self.np_random = None
         self.seed()
