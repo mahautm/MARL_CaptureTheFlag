@@ -51,16 +51,24 @@ class Agent:
                         print("Agent from team " + agent.team + " has been killed")
                         agent.active = False
 
-            # Attacking the enemy flag grants victory
-            # //?\\ Maybe allowing your team's flag to be carried in the future would be a good add on
-            for flag in flags:
-                if (
-                    flag.team != self.team
-                    and abs(self.posX - flag.posX) <= 1
-                    and abs(self.posY - flag.posY) <= 1
-                ):
-                    print("Flag has been captured, victory to team " + self.team)
+    def updateReward(self, flags, agents):
+        # Attacking the enemy flag grants victory
+        # Heuristic 1 : A Great bonus is granted when flag is aquired
+        # Otherwise : ennemies must be kept away from the team's flag, and allies must find the enemy's flag
+        # Here we only calculate the distance to our flag
+
+        # Importance of each parametre
+
+        for flag in flags:
+            if flag.team != self.team:
+                heuristicDistance = abs(self.posX - flag.posX) + abs(
+                    self.posY - flag.posY
+                )
+                if heuristicDistance == 0:
+                    # print("Flag has been captured, victory to team " + self.team)
                     self.reward = 1000
+                else:
+                    self.reward = 1 / heuristicDistance * 100  # reward in percentage
 
     def sight(self, map, flags, agents):
         size = (self.visionRange, self.visionRange)

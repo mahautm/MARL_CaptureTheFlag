@@ -99,10 +99,11 @@ class CtFEnv(gym.Env):
                 self.agents[agentNb].sight(self.map, self.flags, self.agents),
             )
             # //!! Beware, here the reward is set individually. No team reward is assigned !!\\
+            self.agents[agentNb].updateReward(self.flags, self.agents)
             rew = self.agents[agentNb].reward
             self.rewards = np.append(self.rewards, rew)
             # for now rewards are only assigned on victory, no heuristics
-            if rew != 0:
+            if rew == 1000:
                 self.done = True
         # Optionally we can pass additional info, we are not using that for now
         info = {}
