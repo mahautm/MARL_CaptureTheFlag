@@ -17,12 +17,13 @@ class Agent:
             # first value is left, second right, third up, fourth down
             direction = direction.astype(int)
             # we check on the map if there is a wall at destination
-            if (
-                map[self.posY + direction[2] - direction[3]][
-                    self.posX + direction[0] - direction[1]
-                ]
-                == 0.0
-            ):
+            newPosY = np.max(
+                [0, np.min([len(map) - 1, self.posY + direction[2] - direction[3]])]
+            )
+            newPosX = np.max(
+                [0, np.min([len(map[0]) - 1, self.posX + direction[0] - direction[1]])]
+            )
+            if map[newPosY][newPosX] == 0.0:
                 # without wall, the agent moves to destination
                 map[self.posY][self.posX] = False
                 self.posY += direction[2] - direction[3]
