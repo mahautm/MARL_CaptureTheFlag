@@ -26,8 +26,8 @@ class Agent:
             if map[newPosY][newPosX] == 0.0:
                 # without wall, the agent moves to destination
                 map[self.posY][self.posX] = False
-                self.posY += direction[2] - direction[3]
-                self.posX += direction[0] - direction[1]
+                self.posY = newPosY
+                self.posX = newPosX
                 map[self.posY][self.posX] = True
 
     def attack(
