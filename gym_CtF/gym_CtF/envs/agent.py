@@ -58,17 +58,19 @@ class Agent:
         # Here we only calculate the distance to our flag
 
         # Importance of each parametre
-
-        for flag in flags:
-            if flag.team != self.team:
-                heuristicDistance = abs(self.posX - flag.posX) + abs(
-                    self.posY - flag.posY
-                )
-                if heuristicDistance == 0:
-                    print("Flag has been captured, victory to team " + str(self.team))
-                    self.reward = 1000
-                else:
-                    self.reward = 1 / heuristicDistance * 100  # reward in percentage
+        if(self.active):
+            for flag in flags:
+                if flag.team != self.team:
+                    heuristicDistance = abs(self.posX - flag.posX) + abs(
+                        self.posY - flag.posY
+                    )
+                    if heuristicDistance == 0:
+                        print("Flag has been captured, victory to team " + str(self.team))
+                        self.reward = 1000
+                    else:
+                        self.reward = 1 / heuristicDistance * 100  # reward in percentage
+        else:
+            self.reward = -1 # being disactivated is punished 
 
     def sight(self, map, flags, agents):
         size = (self.visionRange, self.visionRange)
