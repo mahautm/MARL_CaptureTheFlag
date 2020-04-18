@@ -42,7 +42,7 @@ from gym.utils import seeding
 
 
 class CtFEnv(gym.Env):
-    metadata = {"render.modes": ["human"]}
+    metadata = {"render.modes": ["human", "console"]}
 
     def __init__(self):
         # There shall be two teams to begin with
